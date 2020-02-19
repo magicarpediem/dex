@@ -100,7 +100,11 @@ class _PokedexState extends State<Pokedex> with Util {
           margin: EdgeInsets.symmetric(vertical: 0, horizontal: 3),
           padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
           decoration: BoxDecoration(
-            color: getTypeColor(type),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: getTypeColor(type),
+            ),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
