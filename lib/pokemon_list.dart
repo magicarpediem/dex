@@ -1,8 +1,8 @@
 import 'package:dex/util/util.dart';
 import 'package:flutter/material.dart';
 
-import 'data/dex_builder.dart';
 import 'data/monster.dart';
+import 'future/future_dex_builder.dart';
 import 'pokemon_info.dart';
 
 class PokemonList extends StatefulWidget {
@@ -13,8 +13,9 @@ class PokemonList extends StatefulWidget {
 class _PokemonListState extends State<PokemonList> with Util {
   @override
   Widget build(BuildContext context) {
+    FutureDexBuilder dex = FutureDexBuilder();
     return FutureBuilder(
-      future: loadDex(),
+      future: dex.loadDex(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(

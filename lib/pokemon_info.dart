@@ -1,3 +1,4 @@
+import 'package:dex/future/future_palette_generator.dart';
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 
@@ -16,26 +17,12 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
 
   final Monster monster;
   Future<PaletteGenerator> palette;
-  PaletteGenerator paletteGenerator;
 
   @override
   void initState() {
     super.initState();
-    palette = _updatePaletteGenerator();
-  }
-
-  Future<PaletteGenerator> _updatePaletteGenerator() async {
-    ImageProvider image = AssetImage(getLargeImagePath(monster.id));
-    Size size = Size.square(475);
-    Rect region = Offset.zero & size;
-    paletteGenerator = await PaletteGenerator.fromImageProvider(
-      image,
-      size: size,
-      region: region,
-      maximumColorCount: 20,
-    );
-    setState(() {});
-    return paletteGenerator;
+    FuturePaletteGenerator future = FuturePaletteGenerator();
+    palette = future.updatePaletteGenerator(monster.id);
   }
 
   @override
@@ -127,61 +114,3 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
     );
   }
 }
-
-//class PokemonInfo1 extends StatelessWidget with Util {
-//  final Monster monster;
-//  Color imageBackgroundColor; // = Colors.grey;
-//  List colors = [];
-//  PaletteGenerator paletteGenerator;
-//
-
-//  @override
-//  Widget build(BuildContext context) {
-//    print('colors: $colors');
-//
-//    return Scaffold(
-//        appBar: AppBar(
-//          centerTitle: true,
-//          title: Text(Util.appTitle),
-//        ),
-//        body: SafeArea(
-//          child: Card(
-//            margin: EdgeInsets.all(8),
-//            child: Column(
-//              crossAxisAlignment: CrossAxisAlignment.stretch,
-//              children: <Widget>[
-//                Expanded(
-//                    child: Container(
-//                        decoration: BoxDecoration(color: imageBackgroundColor),
-//                        child: Image.asset(getLargeImagePath(monster.id)))),
-//                Expanded(
-//                  child: Padding(
-//                    padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
-//                    child: Column(
-//                      children: <Widget>[
-//                        Row(
-//                          crossAxisAlignment: CrossAxisAlignment.start,
-//                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                          children: <Widget>[
-//                            Text(
-//                              'No. ${monster.id}',
-//                              style: TextStyle(
-//                                fontSize: 20,
-//                              ),
-//                            ),
-//                            Text(
-//                              monster.enName,
-//                              style: TextStyle(fontSize: 50),
-//                            ),
-//                          ],
-//                        ),
-//                      ],
-//                    ),
-//                  ),
-//                )
-//              ],
-//            ),
-//          ),
-//        ));
-//  }
-//}
