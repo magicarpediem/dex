@@ -32,7 +32,7 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
       image,
       size: size,
       region: region,
-      maximumColorCount: 2,
+      maximumColorCount: 20,
     );
     setState(() {});
     return paletteGenerator;
