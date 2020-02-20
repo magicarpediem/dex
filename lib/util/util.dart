@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 mixin Util {
-  final Map<String, List<Color>> _typeColorMap = {
+  static const String appTitle = 'Pok\u00e9dex';
+  static const String dexJsonPath = 'assets/data/dex.json';
+  static const String _smallImagesPath = 'assets/images/pokemon/small/';
+  static const String _largeImagesPath = 'assets/images/pokemon/large/';
+
+  static const Map<String, List<Color>> _typeColorMap = {
     'Fire': [Color(0xfffd7d24), Color(0xfffd7d24)],
     'Water': [Color(0xff4592c4), Color(0xff4592c4)],
     'Grass': [Color(0xff9bcc50), Color(0xff9bcc50)],
@@ -22,17 +27,6 @@ mixin Util {
     'Steel': [Color(0xff9eb7b8), Color(0xff9eb7b8)],
   };
 
-  AppBar buildAppBar() => AppBar(
-        titleSpacing: 0.0,
-        backgroundColor: Colors.red,
-        title: Center(
-          child: Text(
-            "Pok\u00e9dex",
-            style: TextStyle(fontSize: 40, fontFamily: 'OdibeeSans'),
-          ),
-        ),
-      );
-
   List<Color> getTypeColor(String type) => _typeColorMap[type];
 
   String maskId(int i) {
@@ -44,4 +38,7 @@ mixin Util {
       return i.toString();
     }
   }
+
+  String getSmallImagePath(int i) => '$_smallImagesPath${maskId(i)}.png';
+  String getLargeImagePath(int i) => '$_largeImagesPath${maskId(i)}.png';
 }

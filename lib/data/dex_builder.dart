@@ -1,6 +1,8 @@
 import 'dart:async' show Future;
 import 'dart:convert';
+
 import 'package:flutter/services.dart' show rootBundle;
+
 import 'monster.dart';
 
 Future<List<Monster>> loadDex() async {
