@@ -78,8 +78,9 @@ class _PokemonListState extends State<PokemonList> with Util {
                             Dropdown(parent: this, selection: selectedType, options: Type.values),
                           ],
                         ),
-                        snap: true,
+                        snap: false,
                         floating: true,
+                        pinned: false,
                       ),
                       SliverList(
                         delegate: SliverChildBuilderDelegate((context, index) {
