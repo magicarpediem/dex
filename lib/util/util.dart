@@ -37,4 +37,7 @@ mixin Util {
         endIndent: 40,
         height: 5,
       );
+
+  bool isAlpha(String str) => str.contains(new RegExp(r'[A-Za-z]'));
+  bool isNumeric(String str) => str.contains(new RegExp(r'[0-9]'));
 }

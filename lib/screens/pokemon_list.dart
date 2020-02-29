@@ -14,88 +14,170 @@ class PokemonList extends StatefulWidget {
   _PokemonListState createState() => _PokemonListState();
 }
 
+// This is the homepage of the app.
+// It will list out all of the mons in a SliverList using a FutureBuilder with the given filters
 class _PokemonListState extends State<PokemonList> with Util {
+  // ScrollController used to jump to top after a dropdown selection
+  ScrollController controller;
+  // Selected filters
   Filter filter = Filter();
+  // DexLoader has an async call to load mons
   DexLoader dexLoader = DexLoader();
+  // Determines whether or not the user is using the searchbar
   bool isSearchActive = false;
+
+  @override
+  void initState() {
+    controller = ScrollController();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Build persistent appbar so sliverappbar can hide behind it
       appBar: buildAppBar(),
       body: FutureBuilder(
+        // Load dex with properties set in filter
         future: dexLoader.loadDex(filter),
         builder: (context, snapshot) {
+          // Create the sliver before putting it into CustomScrollView
+          SliverList monstersSliver;
           if (snapshot.hasData) {
-            return CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: <Widget>[
-                SliverAppBar(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Text('Region:', style: textTheme(context).subtitle1),
-                      Dropdown(
-                        selection: filter.region,
-                        options: Region.values,
-                        onSelect: (newValue) => setState(() => filter.region = newValue),
-                      ),
-                      Text('Type:', style: textTheme(context).subtitle1),
-                      Dropdown(
-                        selection: filter.type,
-                        options: Type.values,
-                        onSelect: (newValue) => setState(() => filter.type = newValue),
-                      ),
-                    ],
-                  ),
-                  snap: false,
-                  floating: true,
-                  pinned: false,
-                ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    if (index >= snapshot.data.length) return null;
-                    Monster monster = snapshot.data[index];
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: buildCardText(monster.id, monster.name, monster.types),
-                            ),
-                            FlatButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => PokemonInfo(monster: monster)),
-                                );
-                                setState(() => hideSearchBar());
-                              },
-                              child: Image(
-                                alignment: Alignment.centerRight,
-                                image: AssetImage(getSmallImagePath(monster.id)),
-                                height: 100,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            );
+            List<Monster> monsters = snapshot.data;
+            // Print 'No results found' if list is empty
+            if (monsters.length <= 0) {
+              monstersSliver = noResultsSliver;
+            } else {
+              // Otherwise create list from snapshot data
+              monstersSliver = buildSliverList(monsters);
+            }
           } else {
+            // Show loading sign while waiting
             return Center(child: CircularProgressIndicator());
           }
+          return CustomScrollView(
+            controller: controller,
+            physics: const BouncingScrollPhysics(),
+            slivers: <Widget>[
+              // Add SliverAppBar
+              buildSliverAppBar(),
+              // and SliverList of mons
+              monstersSliver,
+            ],
+          );
         },
       ),
     );
   }
+
+  // This will build the persistent appbar
+  // AppBar includes a search IconButton
+  AppBar buildAppBar() {
+    // If the user clicked search, create searchfield in AppBar
+    if (isSearchActive) {
+      return AppBar(
+        centerTitle: true,
+        title: Container(
+          height: 40,
+          child: TextField(
+            textAlign: TextAlign.center,
+            textAlignVertical: TextAlignVertical.bottom,
+            style: textTheme(context).subtitle1,
+            decoration: kInputTextDecoration,
+            onChanged: (value) => setState(() => filter.searchQuery = value),
+          ),
+        ),
+        elevation: 0,
+        actions: <Widget>[
+          clearIconButton(),
+        ],
+      );
+    } else {
+      // Otherwise, if the user clicked cancel, show title
+      return AppBar(
+        centerTitle: true,
+        title: kAppTitle,
+        elevation: 0,
+        actions: <Widget>[
+          searchIconButton(),
+        ],
+      );
+    }
+  }
+
+  // Build the SliverAppBar. This will add the Region and Type dropdowns
+  // SliverAppBar is used so the dropdowns can hide when scrolling
+  SliverAppBar buildSliverAppBar() => SliverAppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Text('Region:', style: textTheme(context).subtitle1),
+            Dropdown(
+              selection: filter.region,
+              options: Region.values,
+              onSelect: (newValue) => setState(() {
+                // Animate to top after user makes selection
+                controller.animateTo(0, duration: Duration(milliseconds: 1000), curve: Curves.ease);
+                return filter.region = newValue;
+              }),
+            ),
+            Text('Type:', style: textTheme(context).subtitle1),
+            Dropdown(
+              selection: filter.type,
+              options: Type.values,
+              onSelect: (newValue) => setState(() {
+                // Animate to top after user makes selection
+                controller.animateTo(0, duration: Duration(milliseconds: 1000), curve: Curves.ease);
+                return filter.type = newValue;
+              }),
+            ),
+          ],
+        ),
+        // Snap will make the bar snap into place
+        // It will be in or out, nothing in between
+        snap: false,
+        // Floating will make the bar accessible anywhere in the list
+        floating: true,
+        // Pinned will keep the bar pinned in place
+        pinned: false,
+      );
+
+  SliverList buildSliverList(monsters) => SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          if (index >= monsters.length) return null;
+          Monster monster = monsters[index];
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: buildCardText(monster.id, monster.name, monster.types),
+                  ),
+                  FlatButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PokemonInfo(monster: monster)),
+                      );
+                      setState(() => hideSearchBar());
+                    },
+                    child: Image(
+                      alignment: Alignment.centerRight,
+                      image: AssetImage(getSmallImagePath(monster.id)),
+                      height: 100,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      );
 
   List<Widget> buildCardText(int id, String name, List types) {
     List<Widget> output = [];
@@ -107,10 +189,7 @@ class _PokemonListState extends State<PokemonList> with Util {
           Text('$name'),
           Padding(
             padding: const EdgeInsets.only(left: 8),
-            child: Text(
-              '#$id',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade500),
-            ),
+            child: Text('#$id', style: textTheme(context).subtitle2),
           ),
         ],
       ),
@@ -134,45 +213,25 @@ class _PokemonListState extends State<PokemonList> with Util {
         ),
       ),
     );
-
     output.add(nameAndNumber);
     output.add(Padding(
-      padding: const EdgeInsets.fromLTRB(5, 4, 0, 0),
+      padding: const EdgeInsets.fromLTRB(5, 5, 0, 0),
       child: Row(children: typeContainers),
     ));
     return output;
   }
 
-  Widget buildAppBar() {
-    if (isSearchActive) {
-      return AppBar(
-        centerTitle: true,
-        title: Container(
-          height: 40,
-          child: TextField(
-            textAlign: TextAlign.center,
-            textAlignVertical: TextAlignVertical.bottom,
-            style: textTheme(context).subtitle1,
-            decoration: kInputTextDecoration,
-            onChanged: (value) => setState(() => filter.name = value),
-          ),
+  SliverList noResultsSliver = SliverList(
+    delegate: SliverChildListDelegate(
+      [
+        Container(
+          padding: EdgeInsets.all(40),
+          alignment: Alignment.center,
+          child: Text('No Results found'),
         ),
-        elevation: 0,
-        actions: <Widget>[
-          clearIconButton(),
-        ],
-      );
-    } else {
-      return AppBar(
-        centerTitle: true,
-        title: kAppTitle,
-        elevation: 0,
-        actions: <Widget>[
-          searchIconButton(),
-        ],
-      );
-    }
-  }
+      ],
+    ),
+  );
 
   void showSearchBar() {
     isSearchActive = true;
@@ -180,7 +239,7 @@ class _PokemonListState extends State<PokemonList> with Util {
 
   void hideSearchBar() {
     isSearchActive = false;
-    filter.name = '';
+    filter.searchQuery = '';
   }
 
   IconButton searchIconButton() => IconButton(
@@ -195,7 +254,7 @@ class _PokemonListState extends State<PokemonList> with Util {
         onPressed: () => setState(
           () {
             isSearchActive = false;
-            filter.name = '';
+            filter.searchQuery = '';
           },
         ),
       );

@@ -17,19 +17,29 @@ class DexLoader with Util {
     List jsonList = json.decode(jsonStr);
     jsonList.forEach((element) => output.add(Monster.fromJson(element)));
 
-    if (filter.name != null && filter.name.length > 0) {
-      List<Monster> _allMonsters = output;
-      String name = filter.name.toLowerCase();
-      output = _allMonsters
-          .where(
-            (entry) => entry.name.toLowerCase().startsWith(name),
-          )
-          .toList();
-      output.addAll(_allMonsters
-          .where(
-            (entry) => entry.name.toLowerCase().contains(name) && !entry.name.toLowerCase().startsWith(name),
-          )
-          .toList());
+    if (filter.searchQuery != null && filter.searchQuery.length > 0) {
+      String search = filter.searchQuery.toLowerCase();
+      if (isAlpha(search)) {
+        List<Monster> _allMonsters = output;
+        output = _allMonsters
+            .where(
+              (entry) => entry.name.toLowerCase().startsWith(search),
+            )
+            .toList();
+        output.addAll(_allMonsters
+            .where(
+              (entry) => entry.name.toLowerCase().contains(search) && !entry.name.toLowerCase().startsWith(search),
+            )
+            .toList());
+      } else if (isNumeric(search)) {
+        output = output
+            .where(
+              (entry) => entry.id == int.parse(search),
+            )
+            .toList();
+      } else {
+        output = List<Monster>();
+      }
     } else {
       if (filter.region != Region.All) {
         output = output

@@ -26,6 +26,11 @@ class Pokedex extends StatelessWidget {
             fontFamily: 'Questrial',
             fontSize: 18,
           ),
+          subtitle2: TextStyle(
+            fontSize: 16,
+            color: Colors.grey.shade500,
+            fontFamily: 'Questrial',
+          ),
           bodyText1: TextStyle(
             color: Colors.grey.shade800,
             fontFamily: 'Questrial',
