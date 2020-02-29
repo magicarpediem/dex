@@ -4,10 +4,10 @@ import 'package:dex/data/monster.dart';
 import 'package:dex/data/region.dart';
 import 'package:dex/data/type.dart';
 import 'package:dex/screens/pokemon_info.dart';
+import 'package:dex/util/constants.dart';
 import 'package:dex/util/dex_loader.dart';
 import 'package:dex/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:dex/util/constants.dart';
 
 class PokemonList extends StatefulWidget {
   @override
@@ -33,9 +33,15 @@ class _PokemonListState extends State<PokemonList> with Util {
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Build persistent appbar so sliverappbar can hide behind it
+      // Build persistent appbar so SliverAppBar can hide behind it
       appBar: buildAppBar(),
       body: FutureBuilder(
         // Load dex with properties set in filter
@@ -85,7 +91,10 @@ class _PokemonListState extends State<PokemonList> with Util {
             textAlignVertical: TextAlignVertical.bottom,
             style: textTheme(context).subtitle1,
             decoration: kInputTextDecoration,
-            onChanged: (value) => setState(() => filter.searchQuery = value),
+            onChanged: (value) => setState(() {
+              animateToTop();
+              return filter.searchQuery = value;
+            }),
           ),
         ),
         elevation: 0,
@@ -118,7 +127,7 @@ class _PokemonListState extends State<PokemonList> with Util {
               options: Region.values,
               onSelect: (newValue) => setState(() {
                 // Animate to top after user makes selection
-                controller.animateTo(0, duration: Duration(milliseconds: 1000), curve: Curves.ease);
+                animateToTop();
                 return filter.region = newValue;
               }),
             ),
@@ -128,7 +137,7 @@ class _PokemonListState extends State<PokemonList> with Util {
               options: Type.values,
               onSelect: (newValue) => setState(() {
                 // Animate to top after user makes selection
-                controller.animateTo(0, duration: Duration(milliseconds: 1000), curve: Curves.ease);
+                animateToTop();
                 return filter.type = newValue;
               }),
             ),
@@ -160,16 +169,16 @@ class _PokemonListState extends State<PokemonList> with Util {
                   ),
                   FlatButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PokemonInfo(monster: monster)),
-                      );
+                      Navigator.of(context).push(createRoute(monster));
                       setState(() => hideSearchBar());
                     },
-                    child: Image(
-                      alignment: Alignment.centerRight,
-                      image: AssetImage(getSmallImagePath(monster.id)),
-                      height: 100,
+                    child: Hero(
+                      tag: monster.name,
+                      child: Image(
+                        alignment: Alignment.centerRight,
+                        image: AssetImage(getLargeImagePath(monster.id)),
+                        height: 100,
+                      ),
                     ),
                   ),
                 ],
@@ -178,6 +187,21 @@ class _PokemonListState extends State<PokemonList> with Util {
           );
         }),
       );
+
+  Route createRoute(monster) {
+    return PageRouteBuilder(
+      transitionDuration: Duration(milliseconds: 800),
+      pageBuilder: (context, animation, secondaryAnimation) => PokemonInfo(monster: monster),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var fadeTween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.fastOutSlowIn));
+
+        return FadeTransition(
+          opacity: animation.drive(fadeTween),
+          child: child,
+        );
+      },
+    );
+  }
 
   List<Widget> buildCardText(int id, String name, List types) {
     List<Widget> output = [];
@@ -258,4 +282,6 @@ class _PokemonListState extends State<PokemonList> with Util {
           },
         ),
       );
+
+  void animateToTop() => controller.animateTo(0, duration: Duration(milliseconds: 1000), curve: Curves.ease);
 }

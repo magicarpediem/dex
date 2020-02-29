@@ -1,5 +1,4 @@
 import 'package:dex/data/monster.dart';
-import 'package:dex/util/constants.dart';
 import 'package:dex/util/util.dart';
 import 'package:flutter/material.dart';
 
@@ -20,79 +19,90 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        centerTitle: true,
-        title: kAppTitle,
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(monster.hexColor), Colors.white],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  color: Color(monster.hexColor),
-                ),
-                child: Image.asset(getLargeImagePath(monster.id)),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                child: Column(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(monster.hexColor), Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.center,
+          ),
+          color: Color(monster.hexColor),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                child: Stack(
                   children: <Widget>[
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          'No. ${monster.id}',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        Text(
-                          monster.name,
-                          style: TextStyle(fontSize: 50),
-                        ),
-                      ],
+                    IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                    Column(
-                      children: <Widget>[
-                        defaultDivider(),
-                        Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            /*Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                transparentGreyQuote(),
-                                transparentGreyQuote(),
-                              ],
-                            ),*/
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 5,
-                                horizontal: 20,
-                              ),
-                              child: Text(
-                                monster.description,
-                                style: textTheme(context).caption,
-                              ),
-                            ),
-                          ],
+                    Center(
+                      child: Hero(
+                        tag: monster.name,
+                        child: Image.asset(
+                          getLargeImagePath(monster.id),
                         ),
-                        defaultDivider(),
-                      ],
-                    )
+                      ),
+                    ),
                   ],
                 ),
               ),
-            )
-          ],
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            'No. ${monster.id}',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          Text(
+                            monster.name,
+                            style: TextStyle(fontSize: 50),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: <Widget>[
+                          defaultDivider(),
+                          Stack(
+                            alignment: Alignment.center,
+                            children: <Widget>[
+                              /*Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  transparentGreyQuote(),
+                                  transparentGreyQuote(),
+                                ],
+                              ),*/
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 5,
+                                  horizontal: 20,
+                                ),
+                                child: Text(
+                                  monster.description,
+                                  style: textTheme(context).caption,
+                                ),
+                              ),
+                            ],
+                          ),
+                          defaultDivider(),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
