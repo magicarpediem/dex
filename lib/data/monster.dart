@@ -25,4 +25,9 @@ class Monster {
   int get hexColor => _hexColor;
 
   List<dynamic> get forms => _forms;
+
+  @override
+  String toString() {
+    return 'Monster{_id: $_id, _name: $_name, _types: $_types, _forms: $_forms, _hexColor: $_hexColor, _description: $_description}';
+  }
 }

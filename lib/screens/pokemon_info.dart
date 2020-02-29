@@ -1,7 +1,7 @@
+import 'package:dex/data/monster.dart';
+import 'package:dex/util/constants.dart';
+import 'package:dex/util/util.dart';
 import 'package:flutter/material.dart';
-
-import 'data/monster.dart';
-import 'util/util.dart';
 
 class PokemonInfo extends StatefulWidget {
   final Monster monster;
@@ -22,10 +22,7 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
       backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          appTitleStr,
-          style: textTheme(context).title,
-        ),
+        title: kAppTitle,
       ),
       body: SafeArea(
         child: Column(
@@ -69,13 +66,13 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                         Stack(
                           alignment: Alignment.center,
                           children: <Widget>[
-                            Row(
+                            /*Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 transparentGreyQuote(),
                                 transparentGreyQuote(),
                               ],
-                            ),
+                            ),*/
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 5,

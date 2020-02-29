@@ -1,41 +1,37 @@
-import 'package:dex/pokemon_list.dart';
-import 'package:dex/util/util.dart';
+import 'package:dex/screens/pokemon_list.dart';
 import 'package:flutter/material.dart';
+
+import 'util/constants.dart';
 
 void main() {
   runApp(Pokedex());
 }
 
-class Pokedex extends StatefulWidget {
-  @override
-  _PokedexState createState() => _PokedexState();
-}
-
-class _PokedexState extends State<Pokedex> with Util {
+class Pokedex extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Color(0xFFE3350D),
-        canvasColor: backgroundColor,
+        canvasColor: kBackgroundColor,
         textTheme: TextTheme(
-          title: TextStyle(
+          headline6: TextStyle(
             color: Colors.white,
             fontSize: 40,
             fontFamily: 'OdibeeSans',
             letterSpacing: 5,
           ),
-          subtitle: TextStyle(
+          subtitle1: TextStyle(
             color: Colors.white,
             fontFamily: 'Questrial',
             fontSize: 18,
           ),
-          body1: TextStyle(
+          bodyText1: TextStyle(
             color: Colors.grey.shade800,
             fontFamily: 'Questrial',
             fontSize: 25,
           ),
-          body2: TextStyle(
+          bodyText2: TextStyle(
             color: Colors.grey.shade800,
             fontFamily: 'Questrial',
             fontSize: 18,
@@ -48,23 +44,8 @@ class _PokedexState extends State<Pokedex> with Util {
           ),
         ),
       ),
-      title: appTitleStr,
-      home: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(
-            appTitleStr,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 40,
-              fontFamily: 'OdibeeSans',
-              letterSpacing: 5,
-            ),
-          ),
-          elevation: 0,
-        ),
-        body: PokemonList(),
-      ),
+      title: kPokedexString,
+      home: PokemonList(),
     );
   }
 }
