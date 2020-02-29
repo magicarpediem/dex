@@ -16,25 +16,26 @@ class PokemonList extends StatefulWidget {
 
 // This is the homepage of the app.
 // It will list out all of the mons in a SliverList using a FutureBuilder with the given filters
-class _PokemonListState extends State<PokemonList> with Util {
+class _PokemonListState extends State<PokemonList> with Util, SingleTickerProviderStateMixin {
   // ScrollController used to jump to top after a dropdown selection
-  ScrollController controller;
+  ScrollController scrollController;
   // Selected filters
   Filter filter = Filter();
   // DexLoader has an async call to load mons
   DexLoader dexLoader = DexLoader();
   // Determines whether or not the user is using the searchbar
   bool isSearchActive = false;
+  GlobalKey searchIconButtonKey = GlobalKey();
 
   @override
   void initState() {
-    controller = ScrollController();
     super.initState();
+    scrollController = ScrollController();
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -42,7 +43,19 @@ class _PokemonListState extends State<PokemonList> with Util {
   Widget build(BuildContext context) {
     return Scaffold(
       // Build persistent appbar so SliverAppBar can hide behind it
-      appBar: buildAppBar(),
+      appBar: AppBar(
+        centerTitle: true,
+        title: AnimatedCrossFade(
+          firstChild: Center(child: kAppTitle),
+          secondChild: searchBar(),
+          duration: Duration(milliseconds: 600),
+          crossFadeState: isSearchActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        ),
+        elevation: 0,
+        actions: <Widget>[
+          isSearchActive ? clearIconButton() : searchIconButton(),
+        ],
+      ),
       body: FutureBuilder(
         // Load dex with properties set in filter
         future: dexLoader.loadDex(filter),
@@ -56,18 +69,18 @@ class _PokemonListState extends State<PokemonList> with Util {
               monstersSliver = noResultsSliver;
             } else {
               // Otherwise create list from snapshot data
-              monstersSliver = buildSliverList(monsters);
+              monstersSliver = createSliverList(monsters);
             }
           } else {
             // Show loading sign while waiting
             return Center(child: CircularProgressIndicator());
           }
           return CustomScrollView(
-            controller: controller,
+            controller: scrollController,
             physics: const BouncingScrollPhysics(),
             slivers: <Widget>[
               // Add SliverAppBar
-              buildSliverAppBar(),
+              createSliverAppBar(),
               // and SliverList of mons
               monstersSliver,
             ],
@@ -77,47 +90,9 @@ class _PokemonListState extends State<PokemonList> with Util {
     );
   }
 
-  // This will build the persistent appbar
-  // AppBar includes a search IconButton
-  AppBar buildAppBar() {
-    // If the user clicked search, create searchfield in AppBar
-    if (isSearchActive) {
-      return AppBar(
-        centerTitle: true,
-        title: Container(
-          height: 40,
-          child: TextField(
-            textAlign: TextAlign.center,
-            textAlignVertical: TextAlignVertical.bottom,
-            style: textTheme(context).subtitle1,
-            decoration: kInputTextDecoration,
-            onChanged: (value) => setState(() {
-              animateToTop();
-              return filter.searchQuery = value;
-            }),
-          ),
-        ),
-        elevation: 0,
-        actions: <Widget>[
-          clearIconButton(),
-        ],
-      );
-    } else {
-      // Otherwise, if the user clicked cancel, show title
-      return AppBar(
-        centerTitle: true,
-        title: kAppTitle,
-        elevation: 0,
-        actions: <Widget>[
-          searchIconButton(),
-        ],
-      );
-    }
-  }
-
   // Build the SliverAppBar. This will add the Region and Type dropdowns
   // SliverAppBar is used so the dropdowns can hide when scrolling
-  SliverAppBar buildSliverAppBar() => SliverAppBar(
+  SliverAppBar createSliverAppBar() => SliverAppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
@@ -152,7 +127,7 @@ class _PokemonListState extends State<PokemonList> with Util {
         pinned: false,
       );
 
-  SliverList buildSliverList(monsters) => SliverList(
+  SliverList createSliverList(monsters) => SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           if (index >= monsters.length) return null;
           Monster monster = monsters[index];
@@ -165,7 +140,7 @@ class _PokemonListState extends State<PokemonList> with Util {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: buildCardText(monster.id, monster.name, monster.types),
+                    children: createCardText(monster.id, monster.name, monster.types),
                   ),
                   FlatButton(
                     onPressed: () {
@@ -203,7 +178,7 @@ class _PokemonListState extends State<PokemonList> with Util {
     );
   }
 
-  List<Widget> buildCardText(int id, String name, List types) {
+  List<Widget> createCardText(int id, String name, List types) {
     List<Widget> output = [];
 
     Widget nameAndNumber = Padding(
@@ -257,16 +232,28 @@ class _PokemonListState extends State<PokemonList> with Util {
     ),
   );
 
-  void showSearchBar() {
-    isSearchActive = true;
-  }
-
   void hideSearchBar() {
     isSearchActive = false;
     filter.searchQuery = '';
   }
 
+  Widget searchBar() => Container(
+        height: 40,
+        child: TextField(
+          textAlign: TextAlign.center,
+          textAlignVertical: TextAlignVertical.bottom,
+          style: textTheme(context).subtitle1,
+          decoration: kInputTextDecoration,
+          onChanged: (value) => setState(() {
+            animateToTop();
+            return filter.searchQuery = value;
+          }),
+          enabled: isSearchActive,
+        ),
+      );
+
   IconButton searchIconButton() => IconButton(
+        key: searchIconButtonKey,
         icon: Icon(Icons.search),
         onPressed: () => setState(
           () => isSearchActive = true,
@@ -283,5 +270,9 @@ class _PokemonListState extends State<PokemonList> with Util {
         ),
       );
 
-  void animateToTop() => controller.animateTo(0, duration: Duration(milliseconds: 1000), curve: Curves.ease);
+  void animateToTop() => scrollController.animateTo(
+        0,
+        duration: Duration(milliseconds: 1000),
+        curve: Curves.ease,
+      );
 }
