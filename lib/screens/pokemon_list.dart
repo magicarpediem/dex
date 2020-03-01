@@ -18,6 +18,7 @@ class PokemonList extends StatefulWidget {
 // This is the homepage of the app.
 // It will list out all of the mons in a SliverList using a FutureBuilder with the given filters
 class _PokemonListState extends State<PokemonList> with Util, SingleTickerProviderStateMixin {
+  TextEditingController textController;
   // ScrollController used to jump to top after a dropdown selection
   ScrollController scrollController;
   // Selected filters
@@ -32,11 +33,13 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
   void initState() {
     super.initState();
     scrollController = ScrollController();
+    textController = TextEditingController();
   }
 
   @override
   void dispose() {
     scrollController.dispose();
+    textController.dispose();
     super.dispose();
   }
 
@@ -65,7 +68,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
           SliverList monstersSliver;
           if (snapshot.hasData) {
             List<Monster> monsters = snapshot.data;
-            // Print 'No results found' if list is empty
+            // Display 'No results found' if list is empty
             if (monsters.length <= 0) {
               monstersSliver = noResultsSliver;
             } else {
@@ -103,7 +106,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
               options: Region.values,
               onSelect: (newValue) => setState(() {
                 // Animate to top after user makes selection
-                animateTo(0);
+                animateTo(0.0);
                 return filter.region = newValue;
               }),
             ),
@@ -113,7 +116,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
               options: Type.values,
               onSelect: (newValue) => setState(() {
                 // Animate to top after user makes selection
-                animateTo(0);
+                animateTo(0.0);
                 return filter.type = newValue;
               }),
             ),
@@ -162,7 +165,6 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
                 ),
               );
               setState(() {
-                print(id);
                 double offset = 60 + (id - 2) * 118;
                 offset = offset >= 0 ? offset : 0;
                 animateTo(offset);
@@ -190,18 +192,20 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
   void hideSearchBar() {
     isSearchActive = false;
     filter.searchQuery = '';
+    textController.clear();
   }
 
   Widget searchBar() => Container(
         height: 40,
         child: TextField(
+          controller: textController,
           textAlign: TextAlign.center,
           textAlignVertical: TextAlignVertical.bottom,
           style: textTheme(context).subtitle1,
           decoration: kInputTextDecoration,
           onChanged: (value) => setState(() {
-            animateTo(0);
-            return filter.searchQuery = value;
+            animateTo(0.0);
+            filter.searchQuery = value;
           }),
           enabled: isSearchActive,
         ),
@@ -219,8 +223,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
         icon: Icon(Icons.clear),
         onPressed: () => setState(
           () {
-            isSearchActive = false;
-            filter.searchQuery = '';
+            hideSearchBar();
           },
         ),
       );

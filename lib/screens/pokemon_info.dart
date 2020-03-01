@@ -42,7 +42,6 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
         controller: pageController,
         itemCount: widget.dex.monsterCount,
         itemBuilder: (context, id) {
-          print(id);
           monster = monsters[id];
           return createInfo();
         },
@@ -51,7 +50,6 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
   }
 
   Widget createInfo() {
-    print('monster ${monster.id}');
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
