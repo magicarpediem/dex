@@ -1,4 +1,5 @@
 import 'package:dex/components/default_dropdown.dart';
+import 'package:dex/components/list_card.dart';
 import 'package:dex/data/filter.dart';
 import 'package:dex/data/monster.dart';
 import 'package:dex/data/region.dart';
@@ -22,7 +23,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
   // Selected filters
   Filter filter = Filter();
   // DexLoader has an async call to load mons
-  DexLoader dexLoader = DexLoader();
+  DexLoader dex = DexLoader();
   // Determines whether or not the user is using the searchbar
   bool isSearchActive = false;
   GlobalKey searchIconButtonKey = GlobalKey();
@@ -58,7 +59,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
       ),
       body: FutureBuilder(
         // Load dex with properties set in filter
-        future: dexLoader.loadDex(filter),
+        future: dex.loadDex(filter),
         builder: (context, snapshot) {
           // Create the sliver before putting it into CustomScrollView
           SliverList monstersSliver;
@@ -90,7 +91,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
     );
   }
 
-  // Build the SliverAppBar. This will add the Region and Type dropdowns
+  // Create the SliverAppBar. This will add the Region and Type dropdowns
   // SliverAppBar is used so the dropdowns can hide when scrolling
   SliverAppBar createSliverAppBar() => SliverAppBar(
         title: Row(
@@ -102,7 +103,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
               options: Region.values,
               onSelect: (newValue) => setState(() {
                 // Animate to top after user makes selection
-                animateToTop();
+                animateTo(0);
                 return filter.region = newValue;
               }),
             ),
@@ -112,7 +113,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
               options: Type.values,
               onSelect: (newValue) => setState(() {
                 // Animate to top after user makes selection
-                animateToTop();
+                animateTo(0);
                 return filter.type = newValue;
               }),
             ),
@@ -127,99 +128,53 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
         pinned: false,
       );
 
+  // Create SliverList. This will contain all the mons
+  // It uses ListCard, which is just a custom Card component
   SliverList createSliverList(monsters) => SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           if (index >= monsters.length) return null;
           Monster monster = monsters[index];
-          return Card(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: createCardText(monster.id, monster.name, monster.types),
+          return ListCard(
+            monster: monster,
+            context: context,
+            onPress: () async {
+              // Push to the poke info screen with a fade transition
+              double id = await Navigator.of(context).push(
+                PageRouteBuilder(
+                  // 0.8 second duration
+                  transitionDuration: Duration(milliseconds: 800),
+                  // page to go to
+                  pageBuilder: (context, animation, secondaryAnimation) => PokemonInfo(
+                    monster: monster,
+                    dex: dex,
                   ),
-                  FlatButton(
-                    onPressed: () {
-                      Navigator.of(context).push(createRoute(monster));
-                      setState(() => hideSearchBar());
-                    },
-                    child: Hero(
-                      tag: monster.name,
-                      child: Image(
-                        alignment: Alignment.centerRight,
-                        image: AssetImage(getLargeImagePath(monster.id)),
-                        height: 100,
+                  // fade transition
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(
+                      opacity: animation.drive(
+                        Tween(begin: 0.0, end: 1.0).chain(
+                          CurveTween(curve: Curves.fastOutSlowIn),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                      child: child,
+                    );
+                  },
+                ),
+              );
+              setState(() {
+                print(id);
+                double offset = 60 + (id - 2) * 118;
+                offset = offset >= 0 ? offset : 0;
+                animateTo(offset);
+                // hide search bar when User goes to info screen
+                hideSearchBar();
+              });
+            },
           );
         }),
       );
 
-  Route createRoute(monster) {
-    return PageRouteBuilder(
-      transitionDuration: Duration(milliseconds: 800),
-      pageBuilder: (context, animation, secondaryAnimation) => PokemonInfo(monster: monster),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var fadeTween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.fastOutSlowIn));
-
-        return FadeTransition(
-          opacity: animation.drive(fadeTween),
-          child: child,
-        );
-      },
-    );
-  }
-
-  List<Widget> createCardText(int id, String name, List types) {
-    List<Widget> output = [];
-
-    Widget nameAndNumber = Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 0, 4),
-      child: Row(
-        children: <Widget>[
-          Text('$name'),
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Text('#$id', style: textTheme(context).subtitle2),
-          ),
-        ],
-      ),
-    );
-
-    List<Widget> typeContainers = [];
-    types.forEach(
-      (type) => typeContainers.add(
-        Container(
-          margin: EdgeInsets.symmetric(vertical: 0, horizontal: 3),
-          padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: getTypeColor(type),
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(type, style: textTheme(context).bodyText2),
-        ),
-      ),
-    );
-    output.add(nameAndNumber);
-    output.add(Padding(
-      padding: const EdgeInsets.fromLTRB(5, 5, 0, 0),
-      child: Row(children: typeContainers),
-    ));
-    return output;
-  }
-
+  // Sliver to use when there are no results
   SliverList noResultsSliver = SliverList(
     delegate: SliverChildListDelegate(
       [
@@ -245,7 +200,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
           style: textTheme(context).subtitle1,
           decoration: kInputTextDecoration,
           onChanged: (value) => setState(() {
-            animateToTop();
+            animateTo(0);
             return filter.searchQuery = value;
           }),
           enabled: isSearchActive,
@@ -270,8 +225,8 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
         ),
       );
 
-  void animateToTop() => scrollController.animateTo(
-        0,
+  void animateTo(offset) => scrollController.animateTo(
+        offset,
         duration: Duration(milliseconds: 1000),
         curve: Curves.ease,
       );
