@@ -70,6 +70,16 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: getTypePills(monster.types),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: IconButton(
                       icon: Icon(Icons.arrow_back),
                       onPressed: () => Navigator.pop(context, index.toDouble()),
@@ -91,16 +101,6 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                       child: Text(
                         'No. ${monster.id}',
                         style: TextStyle(fontSize: 20),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: getTypePills(monster.types),
                       ),
                     ),
                   ),
