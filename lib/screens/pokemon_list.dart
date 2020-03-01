@@ -166,7 +166,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
               );
               setState(() {
                 // Animate to the right spot in the list if the pokemon is off screen
-                if (isImageOnScreen(destinationIndex)) {
+                if (isImageOnScreen(destinationIndex, context)) {
                   animateTo(calculateOffset(destinationIndex - 1));
                 }
                 // hide search bar when User goes to info screen
@@ -229,7 +229,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
         ),
       );
 
-  bool isImageOnScreen(index) {
+  bool isImageOnScreen(index, context) {
     // Find position to go to
     double destinationOffset = calculateOffset(index - 1);
     // Find current position
