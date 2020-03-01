@@ -140,9 +140,9 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
           return ListCard(
             monster: monster,
             context: context,
-            onPress: () async {
+            onPress: () {
               // Push to the poke info screen with a fade transition
-              double id = await Navigator.of(context).push(
+              Navigator.of(context).push(
                 PageRouteBuilder(
                   // 0.8 second duration
                   transitionDuration: Duration(milliseconds: 800),
@@ -165,9 +165,15 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
                 ),
               );
               setState(() {
-                double offset = 60 + (id - 2) * 118;
-                offset = offset >= 0 ? offset : 0;
-                animateTo(offset);
+                /*double currentOffset = Scrollable.of(context).position.pixels;
+                double offset = calculateOffset(index - 1);
+                double currentIndex = calculateIndex(currentOffset);
+
+                double minOffset = calculateOffset(currentIndex - 1);
+                double maxOffset = calculateOffset(currentIndex + 4);
+                if (offset > maxOffset || offset < minOffset) {
+                  animateTo(offset);
+                }*/
                 // hide search bar when User goes to info screen
                 hideSearchBar();
               });

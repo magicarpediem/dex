@@ -10,14 +10,13 @@ import 'package:flutter/services.dart' show rootBundle;
 
 class DexLoader with Util {
   int monsterCount = kTotalPokemon;
-  List<Monster> completeDex = List<Monster>();
+  List<Monster> currentDex = List<Monster>();
 
   Future<List<Monster>> loadDex(Filter filter) async {
     List<Monster> output = [];
     String jsonStr = await rootBundle.loadString(kDexJsonPath);
     List jsonList = json.decode(jsonStr);
     jsonList.forEach((element) => output.add(Monster.fromJson(element)));
-    completeDex.addAll(output);
 
     if (filter.searchQuery != null && filter.searchQuery.length > 0) {
       String search = filter.searchQuery.toLowerCase();
@@ -59,6 +58,8 @@ class DexLoader with Util {
       }
     }
     monsterCount = output.length;
+    currentDex.addAll(output);
+
     return output;
   }
 }

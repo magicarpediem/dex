@@ -24,8 +24,8 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
   void initState() {
     super.initState();
     monster = widget.monster;
-    monsters = widget.dex.completeDex;
-    pageController = PageController(initialPage: monster.id - 1);
+    monsters = widget.dex.currentDex;
+    pageController = PageController(initialPage: subjectiveIndex(monster.id, monsters.first.id));
   }
 
   @override
@@ -66,9 +66,13 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
             Expanded(
               child: Stack(
                 children: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.pop(context, monster.id.toDouble()),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () => Navigator.pop(context, monster.id.toDouble() - 1),
+                      iconSize: 30,
+                    ),
                   ),
                   Center(
                     child: Hero(

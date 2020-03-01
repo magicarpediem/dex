@@ -33,4 +33,20 @@ mixin Util {
 
   bool isAlpha(String str) => str.contains(new RegExp(r'[A-Za-z]'));
   bool isNumeric(String str) => str.contains(new RegExp(r'[0-9]'));
+
+  double calculateOffset(index) {
+    double offset = 60 + index * 118;
+    offset = offset >= 0 ? offset : 0;
+    return offset;
+  }
+
+  double calculateIndex(offset) {
+    double index = offset - 60;
+    index = index >= 0 ? index : 0;
+    index = index / 118;
+    return index;
+  }
+
+  int subjectiveIndex(objectiveIndex, startIndex) => objectiveIndex - startIndex + 1;
+  int objectiveIndex(relativeIndex, startIndex) => relativeIndex + startIndex;
 }
