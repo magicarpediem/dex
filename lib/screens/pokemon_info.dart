@@ -12,20 +12,22 @@ class PokemonInfo extends StatefulWidget {
   PokemonInfo({Key key, @required this.monster, this.dex});
 
   @override
-  _PokemonInfoState createState() => _PokemonInfoState();
+  _PokemonInfoState createState() => _PokemonInfoState(monster: monster, dex: dex);
 }
 
 class _PokemonInfoState extends State<PokemonInfo> with Util {
   Monster monster;
+  final DexLoader dex;
   List<Monster> monsters;
   PageController pageController;
+
+  _PokemonInfoState({this.monster, this.dex});
 
   @override
   void initState() {
     super.initState();
-    monster = widget.monster;
-    monsters = widget.dex.currentDex;
-    pageController = PageController(initialPage: subjectiveIndex(monster.id, monsters.first.id));
+    monsters = dex.currentDex;
+    pageController = PageController(initialPage: monsters.indexOf(monster));
   }
 
   @override
@@ -40,16 +42,16 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
       backgroundColor: Colors.white,
       body: PageView.builder(
         controller: pageController,
-        itemCount: widget.dex.monsterCount,
-        itemBuilder: (context, id) {
-          monster = monsters[id];
-          return createInfo();
+        itemCount: monsters.length,
+        itemBuilder: (context, index) {
+          monster = monsters[index];
+          return createInfo(index);
         },
       ),
     );
   }
 
-  Widget createInfo() {
+  Widget createInfo(index) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -70,7 +72,7 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                     padding: const EdgeInsets.all(8.0),
                     child: IconButton(
                       icon: Icon(Icons.arrow_back),
-                      onPressed: () => Navigator.pop(context, monster.id.toDouble() - 1),
+                      onPressed: () => Navigator.pop(context, index.toDouble()),
                       iconSize: 30,
                     ),
                   ),

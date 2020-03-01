@@ -140,9 +140,9 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
           return ListCard(
             monster: monster,
             context: context,
-            onPress: () {
+            onPress: () async {
               // Push to the poke info screen with a fade transition
-              Navigator.of(context).push(
+              double destinationIndex = await Navigator.of(context).push(
                 PageRouteBuilder(
                   // 0.8 second duration
                   transitionDuration: Duration(milliseconds: 800),
@@ -165,15 +165,10 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
                 ),
               );
               setState(() {
-                /*double currentOffset = Scrollable.of(context).position.pixels;
-                double offset = calculateOffset(index - 1);
-                double currentIndex = calculateIndex(currentOffset);
-
-                double minOffset = calculateOffset(currentIndex - 1);
-                double maxOffset = calculateOffset(currentIndex + 4);
-                if (offset > maxOffset || offset < minOffset) {
-                  animateTo(offset);
-                }*/
+                // Animate to the right spot in the list if the pokemon is off screen
+                if (isImageOnScreen(destinationIndex)) {
+                  animateTo(calculateOffset(destinationIndex - 1));
+                }
                 // hide search bar when User goes to info screen
                 hideSearchBar();
               });
@@ -233,6 +228,21 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
           },
         ),
       );
+
+  bool isImageOnScreen(index) {
+    // Find position to go to
+    double destinationOffset = calculateOffset(index - 1);
+    // Find current position
+    double currentOffset = Scrollable.of(context).position.pixels;
+    // Find the index current list item from our position
+    double currentIndex = calculateIndex(currentOffset);
+    // Use the index to make a range of pokemon to estimate what's being shown on screen
+    double minOffset = calculateOffset(currentIndex - 1);
+    double maxOffset = calculateOffset(currentIndex + 4);
+
+    // If the current position is not in the estimated current screen, move to position
+    return destinationOffset > maxOffset || destinationOffset < minOffset ? true : false;
+  }
 
   void animateTo(offset) => scrollController.animateTo(
         offset,

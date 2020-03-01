@@ -9,7 +9,6 @@ import 'package:dex/util/util.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 class DexLoader with Util {
-  int monsterCount = kTotalPokemon;
   List<Monster> currentDex = List<Monster>();
 
   Future<List<Monster>> loadDex(Filter filter) async {
@@ -57,7 +56,7 @@ class DexLoader with Util {
             .toList();
       }
     }
-    monsterCount = output.length;
+    currentDex.clear();
     currentDex.addAll(output);
 
     return output;
