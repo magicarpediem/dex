@@ -18,6 +18,7 @@ class PokemonList extends StatefulWidget {
 // This is the homepage of the app.
 // It will list out all of the mons in a SliverList using a FutureBuilder with the given filters
 class _PokemonListState extends State<PokemonList> with Util, SingleTickerProviderStateMixin {
+  // Used to clear the TextField when a user clicks cancel on the search bar
   TextEditingController textController;
   // ScrollController used to jump to top after a dropdown selection
   ScrollController scrollController;
@@ -25,9 +26,8 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
   Filter filter = Filter();
   // DexLoader has an async call to load mons
   DexLoader dex = DexLoader();
-  // Determines whether or not the user is using the searchbar
+  // Determines whether or not the user is using the search bar
   bool isSearchActive = false;
-  GlobalKey searchIconButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -169,8 +169,6 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
                 if (isImageOnScreen(destinationIndex, context)) {
                   animateTo(calculateOffset(destinationIndex - 1));
                 }
-                // hide search bar when User goes to info screen
-                hideSearchBar();
               });
             },
           );
@@ -213,7 +211,6 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
       );
 
   IconButton searchIconButton() => IconButton(
-        key: searchIconButtonKey,
         icon: Icon(Icons.search),
         onPressed: () => setState(
           () => isSearchActive = true,
