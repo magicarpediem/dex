@@ -86,14 +86,6 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                       iconSize: 30,
                     ),
                   ),
-                  Center(
-                    child: Hero(
-                      tag: monster.id,
-                      child: Image.asset(
-                        getLargeImagePath(monster.id),
-                      ),
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Align(
@@ -101,6 +93,14 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                       child: Text(
                         'No. ${monster.id}',
                         style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Hero(
+                      tag: monster.id,
+                      child: Image.asset(
+                        getLargeImagePath(monster.id),
                       ),
                     ),
                   ),
