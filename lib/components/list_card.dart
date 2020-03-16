@@ -59,7 +59,7 @@ class ListCard extends StatelessWidget with Util {
                 tag: monster.id,
                 child: Image(
                   alignment: Alignment.centerRight,
-                  image: AssetImage(getLargeImagePath(monster.id)),
+                  image: AssetImage(getImagePath(monster.id, false, 0)),
                   height: 100,
                 ),
               ),

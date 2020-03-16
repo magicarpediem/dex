@@ -39,19 +39,35 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.description)),
+          BottomNavigationBarItem(icon: Icon(Icons.graphic_eq)),
+        ],
+      ),
       backgroundColor: Colors.white,
       body: PageView.builder(
         controller: pageController,
         itemCount: monsters.length,
         itemBuilder: (context, index) {
           monster = monsters[index];
-          return createInfo(index);
+          return Column(
+            children: <Widget>[
+              createInfo(index),
+            ],
+          );
         },
       ),
     );
   }
 
   Widget createInfo(index) {
+    bool hasForm = false;
+    int formNumber = 0;
+    String name = monster.name;
+    String desc = monster.description;
+    List types = monster.types;
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -74,7 +90,7 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                       alignment: Alignment.bottomRight,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        children: getTypePills(monster.types),
+                        children: getTypePills(types),
                       ),
                     ),
                   ),
@@ -100,7 +116,7 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                     child: Hero(
                       tag: monster.id,
                       child: Image.asset(
-                        getLargeImagePath(monster.id),
+                        getImagePath(monster.id, hasForm, formNumber),
                       ),
                     ),
                   ),
@@ -115,7 +131,7 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                     Align(
                       alignment: Alignment.topRight,
                       child: Text(
-                        monster.name,
+                        name,
                         style: TextStyle(fontSize: 50),
                       ),
                     ),
@@ -128,12 +144,26 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                             horizontal: 20,
                           ),
                           child: Text(
-                            monster.description,
+                            desc,
                             style: textTheme(context).caption,
                             textAlign: TextAlign.center,
                           ),
                         ),
                         kDefaultDivider(Colors.grey.shade400),
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: () {
+                            if (monster.forms.isNotEmpty) {
+                              setState(() {
+                                hasForm = true;
+                                formNumber = formNumber + 1 >= monster.forms.length ? 0 : formNumber + 1;
+                                name = monster.forms[formNumber]['name'];
+                                desc = monster.forms[formNumber]['description'];
+                                types = monster.forms[formNumber]['types'];
+                              });
+                            }
+                          },
+                        )
                       ],
                     )
                   ],

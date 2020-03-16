@@ -32,8 +32,7 @@ const kInputTextDecoration = InputDecoration(
 );
 
 const String kDexJsonPath = 'assets/data/dex_4.json';
-const String kSmallImagesPath = 'assets/images/pokemon/small/';
-const String kLargeImagesPath = 'assets/images/pokemon/large/';
+const String kImagesPath = 'assets/images/pokemon/';
 final Color kBackgroundColor = Colors.red.shade400;
 
 const Map<Region, Map<String, int>> kRegionNumberMap = {

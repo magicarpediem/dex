@@ -4,21 +4,24 @@ import 'package:dex/util/constants.dart';
 import 'package:flutter/material.dart';
 
 mixin Util {
-  String getSmallImagePath(int i) => '$kSmallImagesPath${maskId(i)}.png';
-  String getLargeImagePath(int i) => '$kLargeImagesPath${maskId(i)}.png';
+  String getImagePath(int id, bool hasForm, int formNumber) {
+    return hasForm ? '$kImagesPath${maskId(id)}_f${formNumber + 2}.png' : '$kImagesPath${maskId(id)}.png';
+  }
 
   TextTheme textTheme(context) => Theme.of(context).textTheme;
 
   List<Color> getTypeColor(String type) => kTypeColorMap[type];
 
+  // Get the starting index of selected region
   int getStart(Region region) => kRegionNumberMap[region]['start'];
+  // Get the ending index of selected region
   int getEnd(Region region) => kRegionNumberMap[region]['end'];
 
-  List<Widget> getTypePills(types) => <Widget>[
-        PillBox(label: types[0]),
-        types.length > 1 ? PillBox(label: types[1]) : Text(''),
-      ];
+  List<Widget> getTypePills(types) => types.map<Widget>((value) {
+        return PillBox(label: value);
+      }).toList();
 
+  // This is used to mask the ID since the resources are labeled as 3 digits
   String maskId(int i) {
     if (i < 10) {
       return '00' + i.toString();
@@ -29,10 +32,12 @@ mixin Util {
     }
   }
 
+  // enums.toString() returns a string with the enum name prefixed like: enumName.value
+  // this will strip the prefix
   String stripEnum(enumerator) => enumerator.toString().split('.')[1];
 
-  bool isAlpha(String str) => str.contains(new RegExp(r'[A-Za-z]'));
-  bool isNumeric(String str) => str.contains(new RegExp(r'[0-9]'));
+  bool isAlpha(String str) => str.contains(RegExp(r'[A-Za-z]'));
+  bool isNumeric(String str) => str.contains(RegExp(r'[0-9]'));
 
   double calculateOffset(index) {
     double offset = 60 + index * 118;

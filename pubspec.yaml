@@ -19,8 +19,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/pokemon/small/
-    - assets/images/pokemon/large/
+    - assets/images/pokemon/
     - assets/data/
   fonts:
     - family: OdibeeSans
