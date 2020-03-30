@@ -34,11 +34,11 @@ class ListCard extends StatelessWidget with Util {
                     children: <Widget>[
                       Text(
                         '${monster.name}',
-                        style: textTheme(context).bodyText1,
+                        style: textTheme(context).body1,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Text('#${monster.id}', style: textTheme(context).subtitle2),
+                        child: Text('#${monster.id}', style: textTheme(context).subtitle),
                       ),
                     ],
                   ),

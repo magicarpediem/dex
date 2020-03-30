@@ -1,4 +1,4 @@
-import 'package:dex/screens/pokemon_list.dart';
+import 'package:dex/screens/dex_list.dart';
 import 'package:flutter/material.dart';
 
 import 'util/constants.dart';
@@ -15,28 +15,28 @@ class Pokedex extends StatelessWidget {
         primaryColor: Color(0xFFE3350D),
         canvasColor: kBackgroundColor,
         textTheme: TextTheme(
-          headline6: TextStyle(
+          headline: TextStyle(
             color: Colors.white,
             fontSize: 40,
             fontFamily: 'OdibeeSans',
             letterSpacing: 5,
           ),
-          subtitle1: TextStyle(
+          subhead: TextStyle(
             color: Colors.white,
             fontFamily: 'Questrial',
             fontSize: 18,
           ),
-          subtitle2: TextStyle(
+          subtitle: TextStyle(
             fontSize: 16,
             color: Colors.grey.shade500,
             fontFamily: 'Questrial',
           ),
-          bodyText1: TextStyle(
+          body1: TextStyle(
             color: Colors.grey.shade800,
             fontFamily: 'Questrial',
             fontSize: 25,
           ),
-          bodyText2: TextStyle(
+          body2: TextStyle(
             color: Colors.grey.shade800,
             fontFamily: 'Questrial',
             fontSize: 18,
@@ -50,7 +50,7 @@ class Pokedex extends StatelessWidget {
         ),
       ),
       title: kPokedexString,
-      home: PokemonList(),
+      home: DexList(),
     );
   }
 }

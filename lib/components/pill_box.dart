@@ -23,7 +23,7 @@ class PillBox extends StatelessWidget with Util {
         ),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Text(label, style: textTheme(context).bodyText2),
+      child: Text(label, style: textTheme(context).body2),
     );
   }
 }

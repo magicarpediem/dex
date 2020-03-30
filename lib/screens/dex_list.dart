@@ -4,24 +4,26 @@ import 'package:dex/data/filter.dart';
 import 'package:dex/data/monster.dart';
 import 'package:dex/data/region.dart';
 import 'package:dex/data/type.dart';
-import 'package:dex/screens/pokemon_info.dart';
+import 'package:dex/screens/details_screen.dart';
 import 'package:dex/util/constants.dart';
 import 'package:dex/util/dex_loader.dart';
 import 'package:dex/util/util.dart';
 import 'package:flutter/material.dart';
 
-class PokemonList extends StatefulWidget {
+class DexList extends StatefulWidget {
   @override
-  _PokemonListState createState() => _PokemonListState();
+  _DexListState createState() => _DexListState();
 }
 
 // This is the homepage of the app.
 // It will list out all of the mons in a SliverList using a FutureBuilder with the given filters
-class _PokemonListState extends State<PokemonList> with Util, SingleTickerProviderStateMixin {
+class _DexListState extends State<DexList> with Util, SingleTickerProviderStateMixin {
   // Used to clear the TextField when a user clicks cancel on the search bar
   TextEditingController textController;
   // ScrollController used to jump to top after a dropdown selection
   ScrollController scrollController;
+
+  OverlayEntry overlayEntry;
   // Selected filters
   Filter filter = Filter();
   // DexLoader has an async call to load mons
@@ -34,6 +36,14 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
     super.initState();
     scrollController = ScrollController();
     textController = TextEditingController();
+    /* focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        this.overlayEntry = this.createOverlayEntry();
+        Overlay.of(context).insert(this.overlayEntry);
+      } else {
+        this.overlayEntry.remove();
+      }
+    });*/
   }
 
   @override
@@ -46,6 +56,13 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.filter),
+        onPressed: () {
+          this.overlayEntry = createOverlayEntry();
+          Overlay.of(context).insert(this.overlayEntry);
+        },
+      ),
       // Build persistent appbar so SliverAppBar can hide behind it
       appBar: AppBar(
         centerTitle: true,
@@ -100,7 +117,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text('Region:', style: textTheme(context).subtitle1),
+            Text('Region:', style: textTheme(context).subhead),
             Dropdown(
               selection: filter.region,
               options: Region.values,
@@ -110,7 +127,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
                 return filter.region = newValue;
               }),
             ),
-            Text('Type:', style: textTheme(context).subtitle1),
+            Text('Type:', style: textTheme(context).subhead),
             Dropdown(
               selection: filter.type,
               options: Type.values,
@@ -147,7 +164,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
                   // 0.8 second duration
                   transitionDuration: Duration(milliseconds: 800),
                   // page to go to
-                  pageBuilder: (context, animation, secondaryAnimation) => PokemonInfo(
+                  pageBuilder: (context, animation, secondaryAnimation) => DetailsScreen(
                     monster: monster,
                     dex: dex,
                   ),
@@ -166,7 +183,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
               );
               setState(() {
                 // Animate to the right spot in the list if the pokemon is off screen
-                if (isImageOnScreen(destinationIndex, context)) {
+                if (isImageOffScreen(destinationIndex, context)) {
                   animateTo(calculateOffset(destinationIndex - 1));
                 }
               });
@@ -200,7 +217,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
           controller: textController,
           textAlign: TextAlign.center,
           textAlignVertical: TextAlignVertical.bottom,
-          style: textTheme(context).subtitle1,
+          style: textTheme(context).subhead,
           decoration: kInputTextDecoration,
           onChanged: (value) => setState(() {
             animateTo(0.0);
@@ -226,7 +243,7 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
         ),
       );
 
-  bool isImageOnScreen(index, context) {
+  bool isImageOffScreen(index, context) {
     // Find position to go to
     double destinationOffset = calculateOffset(index - 1);
     // Find current position
@@ -246,4 +263,37 @@ class _PokemonListState extends State<PokemonList> with Util, SingleTickerProvid
         duration: Duration(milliseconds: 1000),
         curve: Curves.ease,
       );
+
+  OverlayEntry createOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) {
+        return Material(
+          textStyle: TextStyle(
+            color: Colors.black,
+            fontFamily: 'Questrial',
+            fontSize: 18,
+          ),
+          color: Color.fromARGB(100, 255, 255, 255),
+          elevation: 4.0,
+          child: Container(
+            decoration: BoxDecoration(color: Colors.white),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Text('Region:'),
+                ButtonBar(
+                  children: <Widget>[
+                    RaisedButton(
+                      child: Text('fire'),
+                      onPressed: null,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

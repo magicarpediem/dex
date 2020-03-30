@@ -31,7 +31,7 @@ const kInputTextDecoration = InputDecoration(
   ),
 );
 
-const String kDexJsonPath = 'assets/data/dex_4.json';
+const String kDexJsonPath = 'assets/data/dex_5.json';
 const String kImagesPath = 'assets/images/pokemon/';
 final Color kBackgroundColor = Colors.red.shade400;
 

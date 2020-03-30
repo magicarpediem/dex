@@ -5,29 +5,39 @@ import 'package:dex/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class PokemonInfo extends StatefulWidget {
+class DetailsScreen extends StatefulWidget {
   final Monster monster;
   final DexLoader dex;
 
-  PokemonInfo({Key key, @required this.monster, this.dex});
+  DetailsScreen({Key key, @required this.monster, this.dex});
 
   @override
-  _PokemonInfoState createState() => _PokemonInfoState(monster: monster, dex: dex);
+  _DetailsScreenState createState() => _DetailsScreenState(monster: monster, dex: dex);
 }
 
-class _PokemonInfoState extends State<PokemonInfo> with Util {
+class _DetailsScreenState extends State<DetailsScreen> with Util {
   Monster monster;
   final DexLoader dex;
   List<Monster> monsters;
   PageController pageController;
+  bool showForm;
+  int formNumber;
+  String name;
+  String desc;
+  List types;
 
-  _PokemonInfoState({this.monster, this.dex});
+  _DetailsScreenState({this.monster, this.dex});
 
   @override
   void initState() {
     super.initState();
     monsters = dex.currentDex;
     pageController = PageController(initialPage: monsters.indexOf(monster));
+    showForm = false;
+    formNumber = -1;
+    name = monster.name;
+    desc = monster.description;
+    types = monster.types;
   }
 
   @override
@@ -39,35 +49,30 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
+      /*bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.description)),
-          BottomNavigationBarItem(icon: Icon(Icons.graphic_eq)),
+          BottomNavigationBarItem(icon: Icon(Icons.description), title: Text('Title1')),
+          BottomNavigationBarItem(icon: Icon(Icons.graphic_eq), title: Text('Title2')),
         ],
-      ),
+      ),*/
       backgroundColor: Colors.white,
       body: PageView.builder(
         controller: pageController,
         itemCount: monsters.length,
         itemBuilder: (context, index) {
           monster = monsters[index];
-          return Column(
-            children: <Widget>[
-              createInfo(index),
-            ],
-          );
+          return /*Column(
+            children: <Widget>[*/
+              createInfo(index)
+              /*],
+          )*/
+              ;
         },
       ),
     );
   }
 
   Widget createInfo(index) {
-    bool hasForm = false;
-    int formNumber = 0;
-    String name = monster.name;
-    String desc = monster.description;
-    List types = monster.types;
-
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -96,14 +101,6 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      onPressed: () => Navigator.pop(context, index.toDouble()),
-                      iconSize: 30,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
                     child: Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
@@ -116,8 +113,14 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                     child: Hero(
                       tag: monster.id,
                       child: Image.asset(
-                        getImagePath(monster.id, hasForm, formNumber),
+                        getImagePath(monster.id, showForm, formNumber),
                       ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: BackButton(
+                      onPressed: () => Navigator.of(context).pop(index.toDouble()),
                     ),
                   ),
                 ],
@@ -130,9 +133,12 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                   children: <Widget>[
                     Align(
                       alignment: Alignment.topRight,
-                      child: Text(
-                        name,
-                        style: TextStyle(fontSize: 50),
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Text(
+                          name,
+                          style: TextStyle(fontSize: 50),
+                        ),
                       ),
                     ),
                     Column(
@@ -155,11 +161,18 @@ class _PokemonInfoState extends State<PokemonInfo> with Util {
                           onPressed: () {
                             if (monster.forms.isNotEmpty) {
                               setState(() {
-                                hasForm = true;
-                                formNumber = formNumber + 1 >= monster.forms.length ? 0 : formNumber + 1;
-                                name = monster.forms[formNumber]['name'];
-                                desc = monster.forms[formNumber]['description'];
-                                types = monster.forms[formNumber]['types'];
+                                formNumber = formNumber + 1;
+                                if (formNumber >= monster.forms.length) {
+                                  showForm = false;
+                                  formNumber = -1;
+                                  name = monster.name;
+                                  desc = monster.description;
+                                } else {
+                                  showForm = true;
+                                  name = monster.forms[formNumber]['name'];
+                                  desc = monster.forms[formNumber]['description'];
+                                }
+                                //types = monster.forms[formNumber]['types'];
                               });
                             }
                           },

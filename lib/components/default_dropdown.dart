@@ -18,7 +18,7 @@ class Dropdown extends StatelessWidget with Util {
         ),
         iconSize: 20,
         elevation: 16,
-        style: textTheme(context).subtitle1,
+        style: textTheme(context).subhead,
         isDense: true,
         onChanged: onSelect,
         items: options.map<DropdownMenuItem>((value) {
