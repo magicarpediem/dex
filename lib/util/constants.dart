@@ -46,6 +46,7 @@ const Map<Region, Map<String, int>> kRegionNumberMap = {
 };
 
 const Map<String, List<Color>> kTypeColorMap = {
+  'All': [Color(0x88fd7d24), Color(0xfffd7d24)],
   'Fire': [Color(0x88fd7d24), Color(0xfffd7d24)],
   'Water': [Color(0x884592c4), Color(0xff4592c4)],
   'Grass': [Color(0x889bcc50), Color(0xff9bcc50)],

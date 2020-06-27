@@ -1,23 +1,21 @@
 import 'package:dex/data/monster.dart';
 import 'package:dex/util/constants.dart';
-import 'package:dex/util/dex_loader.dart';
+import 'package:dex/util/dex_provider.dart';
 import 'package:dex/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class DetailsScreen extends StatefulWidget {
   final Monster monster;
-  final DexLoader dex;
 
-  DetailsScreen({Key key, @required this.monster, this.dex});
+  DetailsScreen({Key key, @required this.monster});
 
   @override
-  _DetailsScreenState createState() => _DetailsScreenState(monster: monster, dex: dex);
+  _DetailsScreenState createState() => _DetailsScreenState(monster: monster);
 }
 
 class _DetailsScreenState extends State<DetailsScreen> with Util {
   Monster monster;
-  final DexLoader dex;
   List<Monster> monsters;
   PageController pageController;
   bool showForm;
@@ -26,18 +24,23 @@ class _DetailsScreenState extends State<DetailsScreen> with Util {
   String desc;
   List types;
 
-  _DetailsScreenState({this.monster, this.dex});
+  _DetailsScreenState({this.monster});
 
   @override
-  void initState() {
-    super.initState();
-    monsters = dex.currentDex;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    monsters = DexProvider.of(context).dex.currentDex;
     pageController = PageController(initialPage: monsters.indexOf(monster));
     showForm = false;
     formNumber = -1;
     name = monster.name;
     desc = monster.description;
     types = monster.types;
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -167,10 +170,12 @@ class _DetailsScreenState extends State<DetailsScreen> with Util {
                                   formNumber = -1;
                                   name = monster.name;
                                   desc = monster.description;
+                                  types = monster.types;
                                 } else {
                                   showForm = true;
                                   name = monster.forms[formNumber]['name'];
                                   desc = monster.forms[formNumber]['description'];
+                                  types = monster.forms[formNumber]['types'];
                                 }
                                 //types = monster.forms[formNumber]['types'];
                               });

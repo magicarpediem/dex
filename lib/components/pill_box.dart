@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 
 class PillBox extends StatelessWidget with Util {
   final String label;
+  final List<Color> colors;
 
-  PillBox({this.label});
+  PillBox({this.label, this.colors});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class PillBox extends StatelessWidget with Util {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: getTypeColor(label),
+          colors: colors,
         ),
         borderRadius: BorderRadius.circular(10),
       ),

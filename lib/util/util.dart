@@ -17,8 +17,8 @@ mixin Util {
   // Get the ending index of selected region
   int getEnd(Region region) => kRegionNumberMap[region]['end'];
 
-  List<Widget> getTypePills(types) => types.map<Widget>((value) {
-        return PillBox(label: value);
+  List<Widget> getTypePills(types) => types.map<Widget>((type) {
+        return PillBox(label: type, colors: getTypeColor(type));
       }).toList();
 
   // This is used to mask the ID since the resources are labeled as 3 digits

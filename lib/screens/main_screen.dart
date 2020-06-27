@@ -1,33 +1,29 @@
-import 'package:dex/components/default_dropdown.dart';
+import 'package:dex/components/filter_dialog.dart';
 import 'package:dex/components/list_card.dart';
-import 'package:dex/data/filter.dart';
+import 'package:dex/data/filter_keys.dart';
 import 'package:dex/data/monster.dart';
 import 'package:dex/data/region.dart';
-import 'package:dex/data/type.dart';
 import 'package:dex/screens/details_screen.dart';
 import 'package:dex/util/constants.dart';
-import 'package:dex/util/dex_loader.dart';
+import 'package:dex/util/dex_provider.dart';
 import 'package:dex/util/util.dart';
 import 'package:flutter/material.dart';
 
-class DexList extends StatefulWidget {
+class MainScreen extends StatefulWidget {
   @override
-  _DexListState createState() => _DexListState();
+  _MainScreenState createState() => _MainScreenState();
 }
 
 // This is the homepage of the app.
 // It will list out all of the mons in a SliverList using a FutureBuilder with the given filters
-class _DexListState extends State<DexList> with Util, SingleTickerProviderStateMixin {
+class _MainScreenState extends State<MainScreen> with Util, SingleTickerProviderStateMixin {
   // Used to clear the TextField when a user clicks cancel on the search bar
   TextEditingController textController;
+
   // ScrollController used to jump to top after a dropdown selection
   ScrollController scrollController;
-
   OverlayEntry overlayEntry;
-  // Selected filters
-  Filter filter = Filter();
-  // DexLoader has an async call to load mons
-  DexLoader dex = DexLoader();
+
   // Determines whether or not the user is using the search bar
   bool isSearchActive = false;
 
@@ -36,14 +32,6 @@ class _DexListState extends State<DexList> with Util, SingleTickerProviderStateM
     super.initState();
     scrollController = ScrollController();
     textController = TextEditingController();
-    /* focusNode.addListener(() {
-      if (focusNode.hasFocus) {
-        this.overlayEntry = this.createOverlayEntry();
-        Overlay.of(context).insert(this.overlayEntry);
-      } else {
-        this.overlayEntry.remove();
-      }
-    });*/
   }
 
   @override
@@ -55,98 +43,67 @@ class _DexListState extends State<DexList> with Util, SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    print('************ BUILD MAIN SCREEN ***************');
+    DexProvider dex = DexProvider.of(context);
+    FilterKeys filter = DexProvider.of(context).filter ?? FilterKeys(regions: [Region.Alola]);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.filter),
-        onPressed: () {
-          this.overlayEntry = createOverlayEntry();
-          Overlay.of(context).insert(this.overlayEntry);
-        },
-      ),
+          child: Icon(Icons.filter_list),
+          onPressed: () {
+            setState(() {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return FilterDialog();
+                },
+                barrierDismissible: false,
+              ).then((x) {
+                if (x != null) {
+                  animateTo(0.0);
+                  setState(() {
+                    DexProvider.of(context).load();
+                  });
+                }
+              });
+            });
+          }),
       // Build persistent appbar so SliverAppBar can hide behind it
       appBar: AppBar(
         centerTitle: true,
         title: AnimatedCrossFade(
           firstChild: Center(child: kAppTitle),
-          secondChild: searchBar(),
+          secondChild: searchBar(filter),
           duration: Duration(milliseconds: 600),
           crossFadeState: isSearchActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
         ),
         elevation: 0,
         actions: <Widget>[
-          isSearchActive ? clearIconButton() : searchIconButton(),
+          isSearchActive ? clearIconButton(filter) : searchIconButton(),
         ],
       ),
       body: FutureBuilder(
         // Load dex with properties set in filter
-        future: dex.loadDex(filter),
+        future: dex.load(),
         builder: (context, snapshot) {
-          // Create the sliver before putting it into CustomScrollView
-          SliverList monstersSliver;
-          if (snapshot.hasData) {
-            List<Monster> monsters = snapshot.data;
-            // Display 'No results found' if list is empty
-            if (monsters.length <= 0) {
-              monstersSliver = noResultsSliver;
-            } else {
-              // Otherwise create list from snapshot data
-              monstersSliver = createSliverList(monsters);
-            }
-          } else {
+          if (!snapshot.hasData) {
             // Show loading sign while waiting
             return Center(child: CircularProgressIndicator());
+          } else {
+            List<Monster> monsters = snapshot.data;
+            return CustomScrollView(
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: <Widget>[
+                // Create SliverList of mons
+                // Display 'No results found' if list is empty : otherwise create list from snapshot data
+                monsters.length <= 0 ? noResultsSliver : createSliverList(monsters),
+              ],
+            );
           }
-          return CustomScrollView(
-            controller: scrollController,
-            physics: const BouncingScrollPhysics(),
-            slivers: <Widget>[
-              // Add SliverAppBar
-              createSliverAppBar(),
-              // and SliverList of mons
-              monstersSliver,
-            ],
-          );
         },
       ),
     );
   }
-
-  // Create the SliverAppBar. This will add the Region and Type dropdowns
-  // SliverAppBar is used so the dropdowns can hide when scrolling
-  SliverAppBar createSliverAppBar() => SliverAppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Text('Region:', style: textTheme(context).subhead),
-            Dropdown(
-              selection: filter.region,
-              options: Region.values,
-              onSelect: (newValue) => setState(() {
-                // Animate to top after user makes selection
-                animateTo(0.0);
-                return filter.region = newValue;
-              }),
-            ),
-            Text('Type:', style: textTheme(context).subhead),
-            Dropdown(
-              selection: filter.type,
-              options: Type.values,
-              onSelect: (newValue) => setState(() {
-                // Animate to top after user makes selection
-                animateTo(0.0);
-                return filter.type = newValue;
-              }),
-            ),
-          ],
-        ),
-        // Snap will make the bar snap into place
-        // It will be in or out, nothing in between
-        snap: false,
-        // Floating will make the bar accessible anywhere in the list
-        floating: true,
-        // Pinned will keep the bar pinned in place
-        pinned: false,
-      );
 
   // Create SliverList. This will contain all the mons
   // It uses ListCard, which is just a custom Card component
@@ -166,7 +123,6 @@ class _DexListState extends State<DexList> with Util, SingleTickerProviderStateM
                   // page to go to
                   pageBuilder: (context, animation, secondaryAnimation) => DetailsScreen(
                     monster: monster,
-                    dex: dex,
                   ),
                   // fade transition
                   transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -205,13 +161,13 @@ class _DexListState extends State<DexList> with Util, SingleTickerProviderStateM
     ),
   );
 
-  void hideSearchBar() {
+  void hideSearchBar(filter) {
     isSearchActive = false;
     filter.searchQuery = '';
     textController.clear();
   }
 
-  Widget searchBar() => Container(
+  Widget searchBar(filter) => Container(
         height: 40,
         child: TextField(
           controller: textController,
@@ -234,11 +190,11 @@ class _DexListState extends State<DexList> with Util, SingleTickerProviderStateM
         ),
       );
 
-  IconButton clearIconButton() => IconButton(
+  IconButton clearIconButton(filter) => IconButton(
         icon: Icon(Icons.clear),
         onPressed: () => setState(
           () {
-            hideSearchBar();
+            hideSearchBar(filter);
           },
         ),
       );
@@ -263,37 +219,4 @@ class _DexListState extends State<DexList> with Util, SingleTickerProviderStateM
         duration: Duration(milliseconds: 1000),
         curve: Curves.ease,
       );
-
-  OverlayEntry createOverlayEntry() {
-    return OverlayEntry(
-      builder: (context) {
-        return Material(
-          textStyle: TextStyle(
-            color: Colors.black,
-            fontFamily: 'Questrial',
-            fontSize: 18,
-          ),
-          color: Color.fromARGB(100, 255, 255, 255),
-          elevation: 4.0,
-          child: Container(
-            decoration: BoxDecoration(color: Colors.white),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text('Region:'),
-                ButtonBar(
-                  children: <Widget>[
-                    RaisedButton(
-                      child: Text('fire'),
-                      onPressed: null,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
