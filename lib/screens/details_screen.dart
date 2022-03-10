@@ -52,24 +52,16 @@ class _DetailsScreenState extends State<DetailsScreen> with Util {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.description), title: Text('Title1')),
-          BottomNavigationBarItem(icon: Icon(Icons.graphic_eq), title: Text('Title2')),
-        ],
-      ),*/
       backgroundColor: Colors.white,
       body: PageView.builder(
         controller: pageController,
         itemCount: monsters.length,
         itemBuilder: (context, index) {
           monster = monsters[index];
-          return /*Column(
-            children: <Widget>[*/
-              createInfo(index)
-              /*],
-          )*/
-              ;
+          name = monster.name;
+          desc = monster.description;
+          types = monster.types;
+          return createInfo(index);
         },
       ),
     );
@@ -116,7 +108,7 @@ class _DetailsScreenState extends State<DetailsScreen> with Util {
                     child: Hero(
                       tag: monster.id,
                       child: Image.asset(
-                        getImagePath(monster.id, showForm, formNumber),
+                        getImagePath(monster.id, monster.formId),
                       ),
                     ),
                   ),
@@ -164,18 +156,17 @@ class _DetailsScreenState extends State<DetailsScreen> with Util {
                           onPressed: () {
                             if (monster.forms.isNotEmpty) {
                               setState(() {
-                                formNumber = formNumber + 1;
-                                if (formNumber >= monster.forms.length) {
+                                monster.formId++;
+                                if (monster.formId >= monster.forms.length) {
                                   showForm = false;
-                                  formNumber = -1;
+                                  monster.formId = -1;
                                   name = monster.name;
                                   desc = monster.description;
                                   types = monster.types;
                                 } else {
-                                  showForm = true;
-                                  name = monster.forms[formNumber]['name'];
-                                  desc = monster.forms[formNumber]['description'];
-                                  types = monster.forms[formNumber]['types'];
+                                  name = monster.forms[monster.formId]['name'];
+                                  desc = monster.forms[monster.formId]['description'];
+                                  types = monster.forms[monster.formId]['types'];
                                 }
                                 //types = monster.forms[formNumber]['types'];
                               });

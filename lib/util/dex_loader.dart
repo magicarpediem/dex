@@ -58,7 +58,7 @@ class DexLoader with Util {
       }
     } else {
       // Region and Type filters are separated so a search can be done on all pokemon instead of a select few
-      // If the region isn't All, return all monsters with the given region
+      // If the region isn't All, return all monsters with the given regions
       List regions = filter.regions;
       if (regions != null && !regions.contains(Region.All)) {
         output = [];
@@ -68,14 +68,7 @@ class DexLoader with Util {
             )
             .toList()));
       }
-//      if (filter.region != Region.All) {
-//        output = output
-//            .where(
-//              (entry) => entry.id >= getStart(filter.region) && entry.id <= getEnd(filter.region),
-//            )
-//            .toList();
-//      }
-      //If the type isn't All, return all monsters with the given type
+      //If the type isn't All, return all monsters with the given types
       List types = filter.types;
       if (types.isNotEmpty && !types.contains(Type.All)) {
         List<Monster> currentResult = output;

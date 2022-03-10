@@ -4,8 +4,9 @@ import 'package:dex/util/constants.dart';
 import 'package:flutter/material.dart';
 
 mixin Util {
-  String getImagePath(int id, bool hasForm, int formNumber) {
-    return hasForm ? '$kImagesPath${maskId(id)}_f${formNumber + 2}.png' : '$kImagesPath${maskId(id)}.png';
+  String getImagePath(int id, int formId) {
+    print(formId);
+    return formId >= 0 ? '$kImagesPath${maskId(id)}_f${formId + 2}.png' : '$kImagesPath${maskId(id)}.png';
   }
 
   TextTheme textTheme(context) => Theme.of(context).textTheme;

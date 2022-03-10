@@ -34,11 +34,11 @@ class ListCard extends StatelessWidget with Util {
                     children: <Widget>[
                       Text(
                         '${monster.name}',
-                        style: textTheme(context).body1,
+                        style: textTheme(context).bodyText2,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Text('#${monster.id}', style: textTheme(context).subtitle),
+                        child: Text('#${monster.id}', style: textTheme(context).subtitle2),
                       ),
                     ],
                   ),
@@ -52,14 +52,14 @@ class ListCard extends StatelessWidget with Util {
                 ),
               ],
             ),
-            FlatButton(
+            TextButton(
               onPressed: onPress,
               // Hero widget to animate image growing and shrinking
               child: Hero(
                 tag: monster.id,
                 child: Image(
                   alignment: Alignment.centerRight,
-                  image: AssetImage(getImagePath(monster.id, false, 0)),
+                  image: AssetImage(getImagePath(monster.id, -1)),
                   height: 100,
                 ),
               ),

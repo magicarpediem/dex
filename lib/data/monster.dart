@@ -1,5 +1,6 @@
 class Monster {
   final int _id;
+  int formId = -1;
   final String _name;
   final List<dynamic> _types;
   final List<dynamic> _forms;

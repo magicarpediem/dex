@@ -19,8 +19,10 @@ class _FilterDialogState extends State<FilterDialog> with Util {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
+          // Region buttons
           Text('Region'),
           WrappedToggleButtons(values: Region.values, selectedValues: filter.regions),
+          // Type buttons
           Text('Type'),
           WrappedToggleButtons(values: Type.values, selectedValues: filter.types),
           Row(
